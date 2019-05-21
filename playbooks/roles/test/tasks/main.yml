@@ -1,0 +1,15 @@
+---
+# tasks test
+
+- name: "test"
+  debug: "msg=Hello!"
+  when: rollback is not defined
+
+- debug: "var=env_vars"
+  when: rollback is defined
+
+- name: "make it bug"
+  stat:
+    path: "toto"
+  register: toto
+  failed_when: not toto.exists
