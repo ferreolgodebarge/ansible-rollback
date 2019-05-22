@@ -38,6 +38,7 @@ def set_context(
     listtags=None,
     step=None, 
     start_at_task=None,
+    **kwargs,
 ):
     context.CLIARGS = ImmutableDict({
         'verbosity': verbosity,

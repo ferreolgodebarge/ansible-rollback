@@ -13,3 +13,4 @@
     path: "toto"
   register: toto
   failed_when: not toto.exists
+  when: rollback is not defined

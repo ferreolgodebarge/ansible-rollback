@@ -1,29 +1,19 @@
 import os
-from ansible.parsing.dataloader import DataLoader
-from ansible.vars.manager import VariableManager
-from ansible.inventory.manager import InventoryManager
-from ansible.executor.playbook_executor import PlaybookExecutor
+import json
+import click
+from core.playbook import run_playbook
 
-from core.context import set_context
+@click.group(context_settings=dict(help_option_names=['-h', '--help']))
+def cli():
+    pass
 
-
-def run(playbook, inventory, **kwargs):
-    set_context(playbook, inventory, **kwargs)
-    l = DataLoader()
-    i = InventoryManager(loader=l, sources=inventory)
-    v = VariableManager(loader=l, inventory=i)
-    pbex = PlaybookExecutor(
-        playbooks=[playbook],
-        inventory=i,
-        variable_manager=v,
-        loader=l,
-        passwords={},
-    )
-    results = pbex.run()
-    return results
-
-if __name__ == "__main__":
-    p = os.path.join(os.getcwd(), 'playbooks/test.yml')
-    i = os.path.join(os.getcwd(), 'playbooks/inventories/local/hosts')
-    ev = ('rollback=true',)
-    run(p, i, extra_vars=ev)
+@cli.command(name="run")
+@click.option('--playbook', '-p', required=True, type=click.Path(exists=True), help='Playbook yaml path.')
+@click.option('--inventory', '-i', required=True, type=click.Path(exists=True), help='Inventory yaml path.')
+@click.option('--extra-vars', '-e', default=None, required=False, multiple=True, help='Extra vars: "key=value".')
+def run(playbook, inventory, extra_vars):
+    """Run ansible playbook with integrated rollback (need compatible roles)."""
+    if not extra_vars:
+        extra_vars = ()
+    result, full = run_playbook(playbook, inventory, extra_vars=extra_vars)
+    print(full._tqm._stats.__dict__)
