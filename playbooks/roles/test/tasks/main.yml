@@ -13,4 +13,9 @@
     path: "toto"
   register: toto
   failed_when: not toto.exists
+  ignore_errors: yes
   when: rollback is not defined
+
+- name: "Failed for 1.1.1.1"
+  debug: "var=inventory_hostname"
+  failed_when: (inventory_hostname == "500.500.500" and (rollback is not defined))
